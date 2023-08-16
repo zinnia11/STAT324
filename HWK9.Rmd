@@ -1,0 +1,212 @@
+---
+title: "Stat 324 Homework 9 Due April 19 9 am"
+author: "Zinnia Nie"
+output:
+  html_document:
+    df_print: paged
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Submit your homework to Canvas by the due date and time. Email your instructor if you have extenuating circumstances and need to request an extension. 
+
+*If an exercise asks you to use R, include a copy of the code and output. Please edit your code and output to be only the relevant portions.
+
+*If a problem does not specify how to compute the answer, you many use any appropriate method. I may ask you to use R or use manually calculations on your exams, so practice accordingly.
+
+*You must include an explanation and/or intermediate calculations for an exercise to be complete.
+
+*Be sure to submit the HWK 9 Auto grade Quiz which will give you ~20 of your 40 accuracy points.
+
+*50 points total: 40 points accuracy, and 10 points completion
+
+
+## Hypothesis Testing in paired or 2+ independent samples
+
+
+**Exercise 1** Two body designs are being considered for a new car model. The time (in seconds) to parallel park each body design was recorded for 14 drivers. The following results were obtained. 
+
+
+|Driver:  || 1| 2|3|4|5|6|7|8|9|10|11|12|13|14|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|Model1:  || 37.0| 25.8| 16.2| 24.2| 22.0| 33.4| 23.8| 43.2| 33.6| 24.4| 23.4| 21.2| 36.2| 32.8|
+|Model2: || 17.8| 20.2| 16.8| 41.4| 21.4| 38.4| 16.8| 34.2| 27.8| 23.2| 29.6| 20.6| 32.2| 41.8|
+
+> a. Run  the following code to construct a graphical summary of this data. Discuss any notable characteristics of the graph.
+
+```{r, fig.height=2, fig.width=3}
+Model1=c(37.0, 25.8, 16.2, 24.2, 22.0, 33.4, 23.8, 43.2, 33.6, 24.4, 23.4, 21.2, 36.2, 32.8)
+Model2=c(17.8, 20.2, 16.8, 41.4, 21.4, 38.4, 16.8, 34.2, 27.8, 23.2, 29.6, 20.6, 32.2, 41.8)
+Driver=1:14
+
+AllTimes<-c(Model1, Model2)
+BodyDesign<-as.factor(c(rep("Model1", 14), rep("Model2", 14)))
+Driver<-as.factor(rep(Driver,2))
+
+Parking_data<-data.frame(AllTimes, BodyDesign, Driver)
+
+require(ggplot2)
+ggplot(data=Parking_data, aes(x=BodyDesign, y=AllTimes, color=Driver, group=Driver))+
+  geom_point()+
+  geom_line()
+
+```
+
+Most pairs have only a small difference in time between the two models, but it is difficult to tell from first glance if there is any trends between the differences. With a count though, there is only 5 pairs that had an increase in parking time between Model1 and Model2, so it seems like more drivers saw a decrease with Model2. 
+
+> b. Construct the relevent histogram and qqnorm plots to check the normality assumptions of the matched-pair t test. Explain whether or not the normality assumption of the matched-pair t test seems to be well met.
+
+```{r}
+Diff = Model1-Model2
+hist(Diff, main="Histogram of Sample Differences")
+qqnorm(Diff); qqline(Diff)
+```
+
+The histogram appears to be approximately normal, as there is a peak in the middle of the graph with decreasing amounts of data that are almost even on either side. The qqplot also supports this conclusion, and the data points are all around the normal line, with an even amount of points and spread on either side of the line. The data points near the tails are a little further from the normal line than the points near the center, but generally, the points are spread evenly around the qqplot line.
+
+> c. Does this data give us strong evidence at the 1% level that the mean time to parallel park is different for the two body designs? Conduct a matched-pair t test of the hypotheses: $H_o: \mu_1-\mu_2 = 0$ or $H_o: \mu_{1-2} = 0$ vs $H_A: \mu_1-\mu_2 \ne 0$ or $H_A: \mu_{1-2} \ne 0$. Compute the test statistic, degrees of freedom, and p value "by hand". Check your answers using t.test(). Draw a conclusion in the context of the question at a 1\% significance level. 
+
+*Test Statistic*
+
+```{r}
+mean(Diff)
+sd(Diff)
+length(Diff)
+```
+
+
+$t = \frac{\bar{X_D}-D_0}{\frac{\sigma_D}{\sqrt{n_D}}} = \frac{1.071429-0}{\frac{8.798464}{\sqrt{14}}} = \frac{1.071429}{\frac{8.798464}{3.741657}} = \frac{1.071429}{2.351489} = 0.4556385$
+
+*Degrees of Freedom*
+
+$df = 14-1 = 13$
+
+*p-value*
+
+```{r}
+2*pt(0.4556385, 13, lower.tail = FALSE)
+```
+
+*Conclusion*
+
+The p-value is much greater than the significance level of 0.01. Therefore there is not enough evidence that the difference in means of parallel parking time between the two car models is not equal to 0, and we fail to reject the null hypothesis.
+
+*Check calculations*
+
+```{r}
+t.test(Model1, Model2, paired = TRUE, alternative = "two.sided", conf.level=0.99)
+```
+
+> d. Construct and interpret a 99% confidence interval for $\mu_{1-2}$, the mean difference parallel parking time for the two body designs. Compare your findings from (d) and (c).
+
+*Point Estimate*
+
+Mean of differences = 1.071429
+
+*Standard Error for Estimator*
+
+$SE = \frac{\sigma_D}{\sqrt{n_D}} = \frac{8.798464}{\sqrt{14}} = \frac{8.798464}{3.741657} = 2.351489$
+
+*Margin of Error*
+
+```{r}
+qt(0.995, 13, lower.tail=TRUE)
+```
+
+$ME = 3.012276 * 2.351489 = 7.083334$
+
+*Final Confidence Interval*
+
+Lower: $1.071429-7.083334 = -6.011905$
+
+Upper: $1.071429+7.083334 = 8.154763$
+
+*Interpretation*
+
+We are 99% confident that that the difference in the population means of parallel parking time for the two models of cars is between -6.011905 seconds and 8.154763 seconds.
+
+Since this confidence interval contains the null mean of 0 seconds difference between the mean parallel parking times, there is not enough evidence to show that the true population difference in mean parallel parking times is different from 0, sowe would reject the null hypothesis at the 99% level. This is the same as the conclusion we drew in part (c).
+
+> e. The scientists decide to also perform a Wilcoxon Signed Rank of the hypotheses: $H_0: Med_{1-2} = 0$ vs $H_A: Med_{1-2} \ne 0$ because they do not want to rely on the normality assumption of the population of differences. Perform the test in R and report the test statistic and p value. Compare the evidence against the null to that found with the t test in part (c).
+
+```{r}
+wilcox.test(Model1, Model2, alternative="two.sided", mu=0, paired = TRUE, conf.level = 0.99)
+```
+test stat: 63
+
+p-value: 0.53
+
+Similarly to part (c), the p-value is much greater than the significance level of 0.01, therefore we would fail to reject the null hypothesis. However, the p-value of 0.53 is less than the p-value from part (c) of 0.6561674. Therefore, the Wilcoxon test has more evidence against the null than the paired t test. 
+
+\newpage
+
+**Question 2** The strength of wood products used in construction is measured to be sure that they are suitable for the purpose for which they are made. Measurements, in megapascals, of the strength needed to break green mixed oak boards were made. The sample sizes, sample means, and sample variances for four grades of lumber are given below.
+
+|Grade| Sample Size | Sample Mean | Sample Variance |
+|:-: | :-:| :-:| :-:|
+|Select| 32 | 45.1 | $8.52^2$|
+|No. 1 | 11 | 42.0 | $5.50^2$|
+|No. 2| 15 | 33.2 | $6.71^2$|
+|Below Grade | 42 | 38.1 | $8.04^2$|
+
+> a. Check that the data supports the necessary equal variance assumption.
+
+We need the ratio of standard deviations to be within a factor of 2.
+
+```{r}
+8.52/5.50
+8.52/6.71
+8.52/8.04
+
+5.50/6.71
+5.50/8.04
+
+6.71/8.04
+```
+
+All the ratios are between 2 and 0.5, so we can assume their distributions have equal variance.
+
+> b. Construct an ANOVA table including all relevant sums of squares, mean squares, and degrees of freedom.
+
+| Source | df | SS | MS |
+|:-: | :-:| :-:| :-:|
+| Grade | 3 | 1721.424 | 573.808 |
+| Error | 96 | 5833.445 | 60.76505 |
+| Total | 99 | 7554.869 | X | 
+
+```{r}
+#between group
+mu_all = (45.1*32 + 42.0*11 + 33.2*15 + 38.1*42)/100
+
+(32*(45.1-mu_all)^2)+(11*(42.0-mu_all)^2)+(15*(33.2-mu_all)^2)+(42*(38.1-mu_all)^2)
+
+1721.424/3
+
+#within group
+(31*8.52^2)+(10*5.50^2)+(14*6.71^2)+(41*8.04^2)
+
+5833.445/96
+
+#total
+1721.424+5833.445
+```
+
+> c. Perform an overall $F$ test to determine whether evidence suggests at least one grade has a different mean strength needed to break green mixed oak board. Compute the observed test statistic and p-value.
+(Assume relevant assumptions are met.)
+
+```{r}
+573.808/60.76505
+pf(9.44306, 3, 96, lower.tail=FALSE)
+```
+
+F statistic: 9.44306
+
+p-value: 1.581618e-05
+
+Since the p value is very small, and is smaller than the typical significance levels of $\alpha = 0.10, 0.05, 0.01$, we have enough evidence to reject the null hypothesis as say that at least one grade of lumber has a different mean strength needed to break the board. 
+
+

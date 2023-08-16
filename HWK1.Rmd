@@ -1,0 +1,144 @@
+---
+title: "Stats 324 Homework 1 Due Wednesday Feb 1st 9 am"
+author: "Zinnia Nie"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\*Submit your homework to Canvas by the due date and time. Email your lecturer if you have extenuating circumstances and need to request an extension.
+
+\*If an exercise asks you to use R, include a copy of the code and output. Please edit your code and output to be only the relevant portions.
+
+\*If a problem does not specify how to compute the answer, you many use any appropriate method. I may ask you to use R or use manually calculations on your exams, so practice accordingly.
+
+\*You must include an explanation and/or intermediate calculations for an exercise to be complete.
+
+\*Be sure to submit the HWK1 Autograde Quiz which will give you \~20 of your 40 accuracy points.
+
+\*50 points total: 40 points accuracy, and 10 points completion
+
+## Basics of Statistics and Summarizing Data Numerically and Graphically (I)
+
+**Exercise 1**. A number of individuals are interested in the proportion of citizens within a county who will vote to use tax money to upgrade a professional baseball stadium in the upcoming vote. Consider the following methods:
+
+The **Baseball Team Owner** surveyed 8,000 people attending one of the baseball games held in the stadium. Seventy eight percent (78%) of respondents said they supported the use of tax money to upgrade the stadium.
+
+The **Pollster** generated 1,000 random numbers between 1-52,661 (number of county voters in last election) and surveyed the 1,000 citizens who corresponded to those numbers on the voting roll. Forty three percent (43%) of respondents said they supported the use of tax money to upgrade the stadium.
+
+> a.  What is the population of interest? What is the parameter of interest? Will this parameter ever be calculated?
+
+The population of interest is the citizens who can vote and live in the county where the baseball stadium is located. Since the decision is based on the upcoming vote, only the people who can and will vote need to be considered in the population. The parameter of interest is the proportion of the population who supports the use of tax money to upgrade the baseball stadium. This parameter will be calculated once the upcoming vote is completed and the entire population is surveyed.
+
+> b.  What were the sample sizes used and statistics calculated from those samples? Are these simple random samples from the population of interest?
+
+The sample size the Baseball Team Owner used is 8,000 people, where 6,240 respondents wanted to upgrade the stadium for a proportion of 78%.
+
+The sample size the Pollster used is 1,000 people, and 430 of those people wanted to upgrade the stadium for a proportion of 43%.
+
+The Baseball Team Owner did not use a simple random sample. Because he only surveyed people who were attending a baseball game, his sample was biased towards people who would want to go to a baseball game. A sample of 8,000 people who do not like baseball is unlikely to originate from the Baseball Team Owner's method of sampling, so this is not a simple random sample. On the other hand, the Pollster's sample is much closer to a simple random sample because the sample is generated from choosing random numbers, thus everybody in the population is equally likely to be chosen.
+
+> c.  The baseball team owner claims that the survey done at the baseball stadium will better predict the voting outcome because the sample size was much larger. What is your response?
+
+The Baseball Team Owner's survey will not be a better predictor of voting outcome because the sample is not a simple random sample. Since the survey was done in the stadium during a baseball game, the population that would be present are people who like baseball, so the sample is biased. Even though the sample size is bigger, because the population the sample is taken from is not representative of the actual population of interest, the statistic will not be accurate and thus cannot be used to predict the voting outcome.  
+<br>
+
+\vspace{1cm}
+
+**Exercise 2**. There are 12 numbers in a sample, and the mean is $\bar{x}=24$. The minimum of the sample is accidentally changed from 11.9 to 1.19.
+
+> a.  Is it possible to determine the direction in which (increase/decrease) the mean ($\bar{x}$)changes? Or how much the mean changes? If so, by how much does it change? If not, why not?
+
+The mean is likely to decrease and the amount of decrease can be calculated, because we know the current mean and the number of values in the sample.
+
+The current mean is 24 and there are 12 numbers in the sample, so the sum of all the numbers in the sample is $24*12 = 288$. Then, the number that was removed is $11.9$, so the sum becomes $288-11.9 = 276.1$. Then add the updated value to get $276.1+1.19 = 277.29$. Finally divide to get $277.29/12 = 23.1075$. The mean thus decreased by $24-23.1075 = 0.8925$.
+
+> b.  Is it possible to determine the direction in which the median changes? Or how much the median changes? If so, by how much does it change? If not, why not?
+
+The median does not change at all. The value that is changed is the minimum of the sample, and the number of values in the sample doesn't change. The new value is less than the old value, so it remains the minimum and doesn't affect the order of the 12 values. When calculating the median, only the middle two values affect the median, so changing the minimum will not change the median.
+
+> c.  Is it possible to predict the direction in which the standard deviation changes? If so, does it get larger or smaller? If not, why not? Describe why it is difficult to predict by how much the standard deviation will change in this case.
+
+It is difficult to predict the direction the standard deviation would change, because we don't know the individual values in the dataset to calculate it again nor the old standard deviation. However it is likely that the standard deviation will increase because the new value is a considerably smaller than the original value, and since it is the minimum, the distance from the mean for that point has increased quite a bit, which would similarly impact the standard deviation.  
+<br>
+
+\vspace{1cm}
+
+**Exercise 3:** After manufacture, computer disks are tested for errors. The table below tabulates the number of errors detected on each of the 100 disks produced in a day.
+
+| Number of Defects | Number of Disks |
+|-------------------|-----------------|
+| 0                 | 41              |
+| 1                 | 31              |
+| 2                 | 15              |
+| 3                 | 8               |
+| 4                 | 5               |
+
+> a.  Describe the type of data that is being recorded about the sample of 100 disks, being as specific as possible.
+
+The data that is recorded is the number of defects detected on each disk. The type of this data is numerical and discrete because the recorded data is a number and the numbers are concrete values obtained by counting rather than a continuous range.
+
+> b.  A frequency histogram showing the number of errors on the 100 disks is given below. Write the R code to produce this frequency histogram. Be sure to create useful labels. Hints: use the rep() function to define your defect data. Also use ylim and breaks to format your graph.
+
+```{r}
+defects<-c(rep(0, 41), rep(1, 31), rep(2, 15), rep(3, 8), rep(4, 5))
+hist(defects, breaks=seq(-0.5, 4.5, 1), main="Number of Defects", xlab="Defects", ylim=c(0,50), labels=TRUE)
+```
+
+> c.  What is the shape of the histogram for the number of defects observed in this sample? Why does that make sense in the context of the question?
+
+The shape of the histogram is unimodal and right skewed. There is only one peak at 0 and there is a long tail continuously decreasing towards the right side.
+
+Because the data collected is the number of errors in the manufacturing of computer disks, it makes sense that the highest frequency of values is 0, and there are decreasing amounts of disks with larger amounts of errors . In the manufacturing process, less errors in the product is desired because products with too many errors can't be sold or used. If there were a lot of disks with many errors, then that probably signals to the manufacturer that something is wrong with the manufacturing process and that issue would have to be fixed.
+
+> d.  Calculate the mean and median number of errors detected on the 100 disks by hand and with R. How do the mean and median values compare and is that consistent with what we would guess based on the shape?
+
+**Mean by hand:** First sum all of the values in the dataset $41(0) + 31(1) + 15(2) + 8(3) + 5(4) = 105$. Then divide by the total number of values $\bar{x} = 105/100 = 1.05$. There is an average of 1.05 defects per disk from this dataset.
+
+**Median by hand:** There are $41$ 0s in the dataset. Then starting from the highest values, there are $5$ 4s, $8$ 3s, and $15$ 2s, for a sum of $5+8+15=28$. Then there are $41-28=13$ 0s left and $31$ 1s. Continuing to head towards the middle, all of the 0s are used up and there are $31-13=18$ 1s left at the end, so the middle two values are 1 and the median of the dataset is 1.
+
+```{r}
+mean(defects)
+median(defects)
+```
+
+The mean and median are very similar and both are consistent with the shape. Since the histogram is right skewed with a long tail, the mean is likely larger than the median because the higher values on the right tail would increase the sum of all values and thus the mean.
+
+> e.  Calculate the sample standard deviation \`\`by hand" and using R. Are the values consistent between the two methods? How would our calculation differ if instead we know that these 100 values were the whole population?
+
+a.  Mean: 1.05
+
+b.  Deviances: $0-1.05 = -1.05$, $1-1.05 = -0.05$, $2-1.05 = 0.95$, $3-1.05 = 1.95$, $4-1.05 = 2.95$
+
+c.  Squared Deviances: $(-1.05)^2 = 1.1025$, $(-0.05)^2 = 0.0025$, $(0.95)^2 = 0.9025$, $(1.95)^2 = 3.8025$, $(2.95)^2 = 8.7025$
+
+d.  Sum squared deviances: $41(1.1025) + 31(0.0025) + 15(0.9025) + 8(3.8025) + 5(8.7025) = 132.75$
+
+e.  Divide: $132.75 / (100-1) = 1.34090909$
+
+f.  Square root: $\sqrt{1.3391} = 1.15797629$
+
+The sample standard deviation is 1.157976. R also gives the same result.
+
+```{r}
+sd(defects)
+```
+
+If we were looking for the population standarad deviation, the calculation would look a little different at step e. Instead of dividing by (size-1), we would divide by the size of the entire population. Then, the standard deviation would be 1.152171, but the difference between the two standard deviations is very small.
+
+> f.  Construct a boxplot for the number of errors data using R with helpful labels. Explain how the shape of the data (identified in (c) can be seen from the boxplot.
+
+```{r}
+boxplot(defects, horizontal=TRUE, main="Number of Defects Boxplot", xlab="Defects")
+```
+
+Since the data is right skewed, the center and concentration of the data is more to the left side which is reflected in the boxplot as the box is located towards the left. Not only that, the right whisker of the plot is much longer than the left whisker, which shows how the data has more of a tail towards the right.
+
+> g.  Explain why the histogram is better able to show the discrete nature of the data than a boxplot.
+
+A histogram will place discrete values into different bins which are like categories and gives the frequency of each discrete value. On the other hand, a boxplot only gives some important statistics of the dataset no matter if the data is meant to be continuous or discrete. The fact that boxplots are drawn to look like one continous block or line also makes them deceptive about the type of data they are actually presenting. The clear boundaries of each bin in a histogram separates data much more cleanly.

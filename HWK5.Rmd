@@ -1,0 +1,231 @@
+---
+title: "Stat 324 Homework #5 Due Wednesday March 8th 9:00 am"
+author: "Zinnia Nie"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Submit your homework to Canvas by the due date and time. Contact Chelsey if you would like to request an extension.
+
+*If an exercise asks you to use R, include a copy of the code and output. Please edit your code and output to be only the relevant portions.
+
+*If a problem does not specify how to compute the answer, you many use any appropriate method. I may ask you to use R or use manually calculations on your exams, so practice accordingly.
+
+*You must include an explanation and/or intermediate calculations for an exercise to be complete.
+
+*Be sure to submit the HWK5 Autograde Quiz which will give you ~20 of your 40 accuracy points.
+
+*50 points total: 40 points accuracy, and 10 points completion
+
+
+**Exercise 1** Exit polling has been a controversial practice in recent elections, since early release of the resulting information appears to affect whether or not those who have not yet voted do so. Suppose that $90\%$ of all registered Wisconsin voters favor banning the release of information from exit polls in presidential elections until after the polls in Wisconsin close. A random sample of 250 Wisconsin voters are selected (You can assume that the responses of those surveyed are independent). Let X be the count of people in the 250 who favor the ban. 
+
+> a. Calculate the probability that exactly 230 people in the sample of 250 favor the ban, that is $P(X=230)$.
+
+This is can be represented with a binomial random variable.
+```{r}
+dbinom(230, size=250, prob=0.9)
+```
+A success is a person favoring the ban, and that happens with a 0.9 probability. We are looking for 230 successes out of 250 trials. Using R, we get the probability to be 0.05122197.
+
+
+> b. Calculate the **exact** probability that 230 or more people in the sample of 250 favor the ban, that is $P(X \ge 230)$. 
+
+```{r}
+pbinom(229, size=250, prob=0.9, lower.tail=FALSE)
+```
+$P(X \ge 230)=0.1718898$
+
+pbinom will give the probability of greater or less than a certain number of successes for a binomal random variable.
+
+> c. What are the expected value ($\mu_X$) and standard deviation ($\sigma_X$) of X? 
+
+Mean: $\mu_X=n*P=250*0.9=225$
+
+Variance: $\sigma_X^2=n*P*(1-P)=250*0.9*0.1=22.5$
+
+Standard Deviation: $\sigma_X=\sqrt{n*P*(1-P)}=\sqrt{250*0.9*0.1}=4.743416$
+
+> d. We can consider X the sum of 250 iid random draws from the population Y where P(Y=1)=0.90 and P(Y=0)=0.10. That is $X=Y_1+Y_2+..+Y_{250}$. To look at how well a normal curve approximates the distribution of X with n=250, $\pi=0.90$ run the following code with the mean and sd values computed in (c) substituted for "MEAN_VALUE" and "SD_VALUE", respectively. Also set eval=TRUE
+
+```{r, eval=TRUE}
+plot(x=seq(150,250,1), y=dbinom(150:250, 250, prob=0.90), type='h', ylab="")
+curve(dnorm(x, mean=225, sd=4.743416), col="darkblue", lwd=2, add=TRUE, yaxt="n")
+```
+
+> e. Calculate the approximate probability that at least 230 people in a sample of 250 favor the ban, that is $P(X \ge 230)$, assuming a Normal Distribution for X centered at the mean and sd found in c. Compare the value to that found in b. and give possible reasons for any discrepancy. 
+
+```{r}
+pnorm(230, 225, 4.743416, lower.tail=FALSE)
+```
+The probability given by the normal distribution is higher than the probability from part b, $0.1459202>0.1206678$. These two probabilities are taken from different probability distributions, where one is using a binomial distribution that has discrete values and the other than uses a continous normal distribution. Even though a large sample size from a binomial distribution will have a similar shape to a normal distribution, they are still two separate distributions which will given different probability results. 
+
+> f. Consider the sample proportion. Calculate the approximate probability that at least $\hat{p}=\frac{230}{250}$ favor the ban, that is $P(\hat{p} \ge 0.92)$, assuming a Normal Distribution of $\hat{p}$ centered at the appropriate mean and standard deviation. Compare the value to that found in e. and give possible reasons for the relationship between the values. 
+
+mean of $\hat{p}$ : $\mu_\hat{p}=0.9$
+standard deviation of $\hat{p}$ : $\sigma_\hat{p}=\sqrt{\frac{0.9(0.1)}{250}}=0.01897367$
+```{r}
+pnorm(0.92, 0.9, 0.01897367, lower.tail=FALSE)
+```
+The probabilities from part e and part f are equal. Both are using the normal distribution, but one is with expected value and standard deviation of X while the other is a sampling distribution of sample proportion. The actual normal shape remains the same, even if the statistic used is different, and since we are querying the value that is the same number of standard deviations from the mean, 230 successes or a proportion of success of 0.92, the resulting probability of getting greater than that value is the same in both distributions. 
+
+\vspace{1cm}
+
+
+
+**Exercise 2** An automobile club pays for emergency road services (ERS) requested by its members. Upon examining a sample of 2927 ERS calls from the club members, the club found that 1499 calls related to starting problems, 849 calls involved serious mechanical failures requiring towing, 498 calls involved flat tires or lockouts, and 81 calls were for other reasons. 
+
+> a. Construct a $98\%$ confidence interval by hand for the proportion of all ERS calls from club members that are serious mechanical problems requiring towing services (after checking that necessary assumptions are well met).
+
+>> Assumptions Check
+
+1. Population has a unknown rate of success $\pi$. 
+
+2. Data is a simple random sample of size 2927. There was no way of checking this assumption.
+
+3. Sample data is iid. The total population of ERS requests is likely much greater than 10*2927=29270, so we can assume each sample is independent. Since we are drawing samples from the population, and we can assume independence, the data is iid.
+
+4. We want the sampling distribution to be approximately normal. According to the Central Limit Theorem, a large sample size will be approximately normal. 849 number of successes and 2078 failures are both large enough ($>10$) to assume that the sampling distribution of $\hat{p}$ is approximately normal.
+
+>> Computations
+
+$\hat{p}-z_\frac{a}{2}\sqrt{\frac{\hat{p}*(1-\hat{p})}{n}} \le \pi \le \hat{p}+z_\frac{a}{2}\sqrt{\frac{\hat{p}*(1-\hat{p})}{n}}$
+
+$\hat{p}=849/2927=0.2900581$
+
+z-value for 98% confidence interval = $2.326$
+
+$\sqrt{\frac{\hat{p}*(1-\hat{p})}{n}}=\sqrt{\frac{0.2900581*0.7099419}{2927}}=0.008387693$
+
+lower bound = $0.2900581-2.326(0.008387693)=0.2705483$
+
+higher bound = $0.2900581+2.326(0.008387693)=0.3095679$
+
+98% confidence interval for $\hat{p} = 0.2705483$ to $0.3095679$
+
+> b. The current policy rate the automobile club pays is based on the thought that $20\%$ of services requested will be serious mechanical problems requiring towing. However, the insurance company claims that the auto club has a higher rate of serious mechanical problems requiring towing services. Using your confidence interval in part 2a, respond to the insurance company's claim.
+
+The 98% confidence interval for population proportion of serious mechanical problems in ERS requests is about 0.27 to 0.31. The true population proportion is likely to be between 27% and 31%. This proportion is higher than the policy rate estimate of 20% of ERS will be serious mechanical policies. Therefore, the insurance company claim is supported by the confidence interval, and there is a much higher rate of serious mechanical problems. 
+
+> c. The club wants to construct a $95\%$ confidence interval for the proportion of members who want a chocolate fountain at the annual picnic. They want the margin of error to be less than 0.01. How large of a random sample of club members should they contact if they start with the assumption that $50\%$ are in favor of a chocolate fountain at the picnic?
+
+$z_\frac{a}{2}\sqrt{\frac{\hat{p}*(1-\hat{p})}{n}}$ is the margin of error, so we want this value to be less than 0.01.
+
+z-value for 95% confidence interval: $1.96$
+
+$\hat{p}=0.5$
+
+$z_\frac{a}{2}\sqrt{\frac{\hat{p}*(1-\hat{p})}{n}}=1.96*\sqrt{\frac{0.5*0.5}{n}}=0.01$
+
+$0.005102041=\sqrt{\frac{0.25}{n}}$
+
+$2.603082*10^{-5}=\frac{0.25}{n}$
+
+$n=9604$
+
+In order for the margin of error to be less than 0.01, the sample size needs to be 9604 club members.
+
+\vspace{1cm}
+
+
+
+**Exercise 3** Consider the tree data set in R, **trees**. (You can access the data by just typing **trees** as you would any other data frame you've defined). Note that the diameter (in inches) is erroneously labeled as Girth in the data.
+
+> a. Construct Histograms and qqnorm plots for all three of the quantitative variables recorded on the 31 trees. For which of the three variables do we have the strongest evidence that the population of values may not be well approximated by a normal random variable?
+
+```{r}
+trees
+par(mfrow=c(1,2))
+
+hist(trees$Girth, main="Histogram of Girth of trees", xlab="Girth")
+qqnorm(trees$Girth)
+qqline(trees$Girth)
+
+hist(trees$Height, main="Histogram of Height of trees", xlab="Height")
+qqnorm(trees$Height)
+qqline(trees$Height)
+
+hist(trees$Volume, main="Histogram of Volume of trees", xlab="Volume")
+qqnorm(trees$Volume)
+qqline(trees$Volume)
+```
+
+The volume of trees might not be well approximated by a normal variable. Just by looking at the histogram, the shape of the graph appears more right skewed. The variance of the values from the straight line that represents the normally distributed values in the qqplot is also the largest towards the higher theoretical quantiles in the qqplot for Volume of trees.
+
+> b. Construct $90\%$ t confidence intervals "by hand"" for the mean Diameter and mean Height of the population of trees from which this sample was taken. Identify what assumptions you are making. Summaries of the variables are given below and you should use an r function to find the relevant critical value for your margin of error. 
+
+```{r}
+#Diameter Summary:
+mean(trees$Girth); sd(trees$Girth); length(trees$Girth)
+
+#Height Summary
+mean(trees$Height); sd(trees$Height); length(trees$Height)
+
+#t critical value
+qt(0.95, 31-1)
+```
+t critical value for 90% confidence interval= $1.697261$
+
+$\bar{x}-t_{\frac{a}{2}, df}\frac{s}{\sqrt{n}} \le \mu \le \bar{x}+t_{\frac{a}{2}, df}\frac{s}{\sqrt{n}}$
+
+Mean diameter: $13.24839-(1.697261*\frac{3.138139}{\sqrt{31}}) \le \mu \le 13.24839+(1.697261*\frac{3.138139}{\sqrt{31}})=13.24839-0.9566211 \le \mu \le 13.24839+0.9566211= 12.29177 \le \mu \le 14.20501$
+
+Mean height: $76-(1.697261*\frac{6.371813}{\sqrt{31}}) \le \mu \le 76+(1.697261*\frac{6.371813}{\sqrt{31}})= 76-1.942364 \le \mu \le 76+1.942364= 74.05764 \le \mu \le 77.94236$
+
+> c. Construct the same confidence intervals that you constructed in (b) above using the t.test() command in R. Confirm that you get very similar endpoints.
+
+```{r}
+#diameter
+t.test(trees$Girth, conf.level = 0.9)
+
+#height
+t.test(trees$Height, conf.level = 0.9)
+```
+90 percent confidence interval for tree diameter: 12.29177 to 14.20501. Part b: $12.29177 \le \mu \le 14.20501$. The endpoints are the same.
+
+90 percent confidence interval for tree height: 74.05764 to 77.94236. Part b: $74.05764 \le \mu \le 77.94236$. The endpoints are the same.
+
+> d. Construct 90\% Bootstrap T Confidence intervals for $\mu_D$ and $\mu_H$ from the sample data in the **trees** data set. Compare these confidence intervals to those you computed in 3b (and 3c) and brainstorm possible reasons for the relationships you noticed. (Note, you will need to include the bootstrap function code [~12 lines starting with "bootstrap=function(...)" from the notes] within your .Rmd file in order for RMarkdown to find it when you Knit.)
+
+```{r}
+bootstrap=function(x,n.boot){
+n<-length(x)
+x.bar<-mean(x)
+t.hat<-rep(0, n.boot) #create vector that we will fill with "t" values
+for (i in 1:n.boot){
+  x.star<-sample(x, size=n, replace=TRUE)
+  x.bar.star<-mean(x.star)
+  s.star<-sd(x.star)
+  t.hat[i]<-(x.bar.star-x.bar)/(s.star/sqrt(n))
+}
+return(t.hat)
+}
+
+#Diameter bootstrap
+Girth.boot.t<-bootstrap(x=trees$Girth, n.boot=5000)
+lower_girth = quantile(Girth.boot.t, probs=0.95)
+upper_girth = quantile(Girth.boot.t, probs=1-0.95)
+#lower bound
+lower = 13.24839-(lower_girth*(3.138139/sqrt(31)))
+#upper bound
+upper = 13.24839-(upper_girth*(3.138139/sqrt(31)))
+cat('Diameter bootstrap confidence interval =', lower, 'to', upper, '\n')
+
+#Height bootstrap
+Height.boot.t<-bootstrap(x=trees$Height, n.boot=5000)
+lower_height = quantile(Height.boot.t, probs=0.95)
+upper_height = quantile(Height.boot.t, probs=1-0.95)
+#lower bound
+lower = 76-(lower_height*(6.371813/sqrt(31)))
+#upper bound
+upper = 76-(upper_height*(6.371813/sqrt(31)))
+cat('Height bootstrap confidence interval =', lower, 'to', upper)
+
+```
+Both intervals are slightly different from the ones found in part d and c. The diameter interval is slightly smaller and the height interval is slightly larger. Firstly, the calculated t critical values were different. The critical value from the t-distribution is 1.697261 while the one from bootstrapping diameter is 1.631794 and the bootstrap value for height is 1.759228. This is likely because any trends within the sampling distribution will be reflected in the bootstrap test statistic distribution and thus affect the critical value. A t-distribution is just slightly different from a normal curve, but the bootstrap values have a distribution that varies based on each calculated sample, and thus will vary a little from a close to normal approximation.

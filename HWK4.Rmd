@@ -1,0 +1,257 @@
+---
+title: "Statistics 324 Homework #4 due Feb 22 9am"
+author: "Zinnia Nie"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Submit your homework to Canvas by the due date and time. 
+**There will be no extensions this week because of the midterm on Feb 23rd, Feb 24th**
+
+*If an exercise asks you to use R, include a copy of the code and output. Please edit your code and output to be only the relevant portions.
+
+*If a problem does not specify how to compute the answer, you many use any appropriate method. I may ask you to use R or use manually calculations on your exams, so practice accordingly.
+
+*You must include an explanation and/or intermediate calculations for an exercise to be complete.
+
+*Be sure to submit the HWK4 Autograde Quiz which will give you ~20 of your 40 accuracy points.
+
+*50 points total: 40 points accuracy, and 10 points completion
+
+## Sampling Distributions
+
+
+**Exercise 1:**  You will be comparing the sampling distributions for two different estimators of $\sigma$, the population standard deviation.
+
+When trying to estimate the standard deviation of a population ($\sigma$) from a sample we could use:
+
+\begin{center}
+$s_1 =\sqrt{\frac{\sum(X-\bar{X})^2}{n-1}}$ 
+or 
+$s_2 =\sqrt{\frac{\sum(X-\bar{X})^2}{n}}$ 
+\end{center}
+
+The graphs below give the sampling distributions produced by these estimators when drawing a sample of size 8 from a normal population with mean $\mu_x=3$ and standard deviation $\sigma_X=5$.
+
+>a. What do you notice about the mean of the standard deviations produced using the $s_1$ estimator compared to the $s_2$ estimator compared to the true population standard deviation? Why do we prefer to use the $s_1$ formulation when we have a sample of data and are interested in estimating the population standard deviation? (You should use the resulting histograms to help you answer the question and use the word "bias".)
+
+```{r, eval=TRUE, echo=FALSE, fig.height = 6}
+
+#Function that will compute the standard deviation on a vector "data" assuming that data is a sample 
+samp.sd <- function(data){
+  n <- length(data)
+  sum.sq.devs <- sum((data-mean(data))^2)
+  av.dev <- sqrt(sum.sq.devs/(n-1))
+  return(av.dev)
+}
+
+#Function that will compute the standard deviation on a vector "data" assuming that data is a population
+pop.sd <- function(data){
+  n <- length(data)  
+  sum.sq.devs <- sum((data-mean(data))^2)  
+  av.dev <- sqrt(sum.sq.devs/n)   
+  return(av.dev)
+}
+
+#Simulation Section
+#Building sampling distribution of pop standard deviation estimators
+#estimator 1 is samp.sd and estimator 2 is pop.sd formulation
+set.seed(1)
+nsamples<-100000
+sd.sample <- rep(0, nsamples)       #make a vector of 100000 0s to be replaced with the calculated sample sd values below.
+sd.pop <- rep(0, nsamples)          #make a vector of 100000 0s to be replaced with the calculated population sd values below.
+for (i in 1:nsamples){
+  samp <- rnorm(8, 3, 5)                #taking a sample of size 8 from a normal population with mean 3 and sd 5
+  sd.sample[i] <- samp.sd(samp)         #calculating and storing sd using sample formula on new sample
+  sd.pop[i] <- pop.sd(samp)             #calculating and storing sd using alternative formula on new sample
+}
+
+# Displaying histograms of the 100000 standard deviations we calculated 
+# using the sample and population standard deviation equations; 
+# adding true population standard deviation (5) in red and 
+# mean of the simulated standard deviations in blue.
+
+par(mfrow=c(2, 1), mar = c(3.1, 4.1, 1.1, 2.1))
+#histogram of generated sample sds
+hist(sd.sample, freq=FALSE, xlim=c(0, 12),
+     main="s1 sampling distribution");   
+abline(v=5, col="red"); abline(v=mean(sd.sample), col="blue")
+legend("right", col = c("Red", "Blue"),
+       legend = c("Population SD sigma=5", "Mean of Generated S1 SDs"),
+       lwd = 1, cex = 0.8)
+
+#histogram of generated pop sds
+hist(sd.pop, freq=FALSE, xlim=c(0, 12),
+     main="s2 sampling distribution");      
+abline(v=5, col="red"); abline(v=mean(sd.pop), col="blue")
+legend("right", col = c("Red", "Blue"),
+       legend = c("Population SD sigma=5", "Mean of Generated S2 SDs"),
+       lwd = 1, cex = 0.8)
+
+par(mfrow=c(1,1), mar = c(5.1, 4.1, 4.1, 2.1))
+```
+
+The $s_1$ estimator's mean standard deviation is much closer to the true population standard deviation than the $s_2$ estimator. The $s_1$ estimator was calculated with the method of calculating sample standard deviation, which is by subtracting 1 from the sample size, while the $s_2$ estimator was calculated using population standard deviation and dividing by sample size, even though we were taking samples from a population. Dividing by n is more biased than dividing by n-1 when calculating sample standard deviation for small samples, as shown in the histograms where the difference between the true value and the calculated mean is greater in the $s_1$ estimator, therefore it is preferred to use the $s_1$ estimator when estimating population standard deviation.
+
+\vspace{1cm}
+
+
+
+**Exercise 2:** A serving of a specific type of yogurt has a sugar content that is well approximated by a Normally distributed random variable $X$ with mean 13 g and variance: $1.3^2 g^2$. We can consider each serving as an independent and identical draw from X.
+
+> a. In what percent of servings will the sugar content be above 13.3 g?
+
+```{r}
+pnorm(13.3, mean=13, sd=1.3, lower.tail=FALSE)
+```
+40.87% of servings will have sugar content above 13.3.
+
+> b. What is the probability that a randomly chosen serving will have a sugar content between 13.877 and 12.123? What do we call the difference: 13.877-12.123=1.754?
+
+```{r}
+# percent lower than 13.877
+pnorm(13.877, mean=13, sd=1.3, lower.tail=TRUE)
+# percent lower than 12.123
+pnorm(12.123, mean=13, sd=1.3, lower.tail=TRUE)
+0.7500399-0.2499601
+```
+13.877 is above 75% of other values. 12.123 is above 25% of other values. Thus 13.877 is Q3 and 12.123 is Q1, so 13.877-12.123 = Q3-Q1, which is how to calculate the interquartile range and the IQR is 1.754.
+
+> c. Calculate the probability that in 6 servings, exactly 1 has a sugar content below 13 g.
+
+```{r}
+pnorm(13, mean=13, sd=1.3, lower.tail=TRUE)
+6*0.5*(0.5)^5
+```
+$P(X<13)=0.5$
+P(exactly 1 with X<13)=$6*P(X<13)*P(X>=13)^5=6*0.5*0.5^5$
+
+> d. Describe the sampling distribution for the mean sugar content of 6 servings $\bar{X}$. (Give shape, mean, and standard deviation or variance, if possible)
+
+Since the distribution the sample comes from the approximately normal, the sampling distributions of means will also be approximately normal. 
+The mean of the means of samples of 6 will be equal to the population mean of 13.
+The variance will be the variance of the population variance divided by the sample size, so for this sampling distribution, it would be $\frac{1.3^2}{6}$.
+The standard deviation will be the variance square rooted, so the old standarad deviation divided by the square root of the sample size. In this sampling distribution, that would be $\frac{1.3}{\sqrt{6}}$.
+
+> e. What is the interquartile range of the sampling distribution for the sample mean $\bar{X}$ when n=6? Is that value larger or smaller than the IQR implied in part b? Why does the relative sizes of the IQRs make sense?
+
+```{r}
+# Q3
+qnorm(0.75, mean=13, sd=(1.3/sqrt(6)), lower.tail=TRUE)
+# Q1
+qnorm(0.25, mean=13, sd=(1.3/sqrt(6)), lower.tail=TRUE)
+13.35797-12.64203
+1.754/sqrt(6)
+```
+The IQR of the sampling distribution is 0.71594 and it is smaller than the IQR of the population distribution from part b. This makes sense because the standard deviation of the sampling distribution has been divided by $\sqrt{6}$, making it smaller than the standard deviation of the population. As a matter of fact the sampling distribution standard deviation is about equal to the population standarad deviation divided by square root of 6 ($1.754/\sqrt{6}=0.7160675$).
+
+> f. What is the probability that the mean sugar content in 6 servings is more than 13.3 g ? How does this value compare to your computation in (a)? Why does that comparison make sense?
+
+```{r}
+pnorm(13.3, mean=13, sd=(1.3/sqrt(6)), lower.tail=FALSE)
+```
+The probability the mean sugar content will be more than 13.3g of sugar is 0.2859461. This value is smaller than the proportion of servings with more than 13.3g of sugar found in the population. This makes sense because we are taking six samples from the population distribution of sugar content, thus we would have to hit the probability of pulling a certain sugar content every time. Not only that, the standard deviation is smaller in the sampling distribution, so the distribution is more condensed around the mean, so the value 13.3 is more standard deviations away from the mean in the sampling distribution than the population distribution, meaning that the percentage of values above it is smaller. 
+
+> g. Is it more or less likely that the mean sugar content is above 13.3 g in 10 servings or 6 servings (as computed in f)? Can you explain it without actually computing the new probability?
+
+I think it will be less likely that the mean sugar content is above 13.3g in 10 servings. The larger the sample size, the closer the sample mean will be to the population mean. So, there will be less deviation from the population mean in a sample of 10 servings, meaning there will be a lower proportion of means that will be greater than 13.3g of sugar. 
+
+> h. Suppose each large yogurt container of this type contains 10 servings and consider the total sugar content in each container as a sum of 10 iid random draws from $X \sim N(13, 1.3^2)$. If you were to eat a whole large container of yogurt, **above what total sugar content** would you consume with 95\% probability? Show and briefly explain your calculations.
+
+```{r}
+qnorm(0.95, mean=0, sd=1)
+1.3/sqrt(10)
+1.644854*0.4110961
+13+0.6761931
+```
+The z-value of 0.95 is 1.644854, so the value is 1.644854 standard deviations above the mean.
+
+Mean is 13, standard deviation is $\frac{1.3}{\sqrt{10}}=0.4110961$.
+
+$13+(1.644854*0.4110961)=13+0.6761931=13.67619$
+
+With 95% probability, you will consume over 13.6g of sugar in a yogurt container with 10 servings.
+
+\vspace{1cm}
+
+
+
+**Exercise 3** Let $X$ denote the number of flaws in a 1 in. length of copper wire. The probability mass function of $X$ is given in the table below. It has mean: $\mu=0.66$ and variance $\sigma^2 = 0.5244$. 
+
+|Number of Flaws in length of wire (X)| Probability |
+|:-: | :-:|
+|x=0 | 0.48 |
+|x=1 | 0.39 |
+|x=2 | 0.12 |
+|x=3 | 0.01 |
+
+> a. Is the distribution of $X$ left skewed, symmetric, or right skewed? How do you know?
+
+The distribution of $X$ is right skewed. The biggest probability is at the left, and it decreases as you move along increasing values of $X$, resulting in a long tail towards the right side, which are the characteristics of a right skewed distribution.
+
+> b. In what percent of 1 in. length of copper wire will 1 or more flaws be observed? 
+
+P(one or more flaws)$=1-P(X=0)=1-0.48=0.52$. 
+
+52% of 1 in. length copper wire will have 1 or more flaws.
+
+A random sample of 45 1 in. lengths of the copper wire are selected for review. Since this is a SRS from a very large population, we can consider the number of flaws on each draw from the population $X_1, X_2, ..X_n$ iid to $X$.
+
+> c. The simulation creates histograms that diplay (1) the population $X$ values, (2) the simulated sampling distribution of the sample mean $\bar{X}$, and (3) the simulated sampling distribution of the sample sum $S$. Briefly explain how you know which histogram is which.
+
+```{r}
+items=c(rep(0, 48), rep(1, 39), rep(2, 12), rep(3, 1))
+manytimes=500000
+samp_mean=rep(9, manytimes)
+samp_sum=rep(9, manytimes)
+for (i in 1:manytimes){
+  samp=sample(items, size=45, replace=TRUE)
+  samp_mean[i]=mean(samp)
+  samp_sum[i]=sum(samp)
+}
+
+par(mfrow=c(3,1))
+hist(samp_sum, breaks=seq(0, 60, 1), main="Histogram A", xlab="")
+hist(items, breaks=seq(-0.5, 3.5, 1), freq=FALSE, main="Histogram B", xlab="")
+hist(samp_mean, breaks=seq(0,1.3, 0.01), main="Histogram C", xlab="")
+par(mfrow=c(1,1))
+
+```
+**Histogram A** is the sampling distribution for the sample sum of 45 copper wires. We have determined that the population distribution is right skewed, while this histogram appears approximately normal. This is where the Central Limit Theorem comes in. Since the sample size is large (>30), the sampling distribution will be approximately normal. We know that this is the sample sum because the values of each data point as seen on the x axis are large. If it was the sample mean, then the values should not be greater than the maximum possible realization, which for this random variable is 3.
+
+**Histogram B** is the population $X$ values. There are only a few bins, and each one corresponds with a realization of the random variable. The distribution is also right skewed, reflecting the shape shown by the probability mass function.
+
+**Histogram C** is the sampling distribution for the sample mean. This distribution is also approximately normal, once again because of the Central Limit Theorem. The x axis values are small and include decimals, which wouldn't be possible when measuring sample sum. 
+
+> d. Describe the distribution (shape, mean, and standard deviation) of the mean number of flaws in 45 1 in. length of copper wire $\bar{X}=\frac{X_1+X_2+...+X_{45}}{45}$ according to theory. Make sure to name any theorems you are using. 
+(You can compute the mean and sd of one of the vectors constructed above to check your theoretical values.)
+
+Even though the population distribution is not normal, because of the Central Limit Theorem, which states that if the sample size is large enough, the distribution of sample means will be approximately normal. Since the sample size in this situation is 45, which is relatively large (>30), the Central Limit Theorem applies and the shape of the distribution is approximately normal. The mean of the distribution is the same as the population mean which is $\mu=0.66$. The standard deviation is the population standard deviation divided by the square root of the sample size, so it will be $\sigma = \frac{\sqrt{0.5244}}{\sqrt{45}} = 0.1079506$.
+
+> e. According to your theoretical distribution in (d), what is the probability that the mean number of flaws in the 45 1 inch lengths of wire reviewed will be 1 or more flaws? 
+
+```{r}
+pnorm(1, mean=0.66, sd=0.1079506, lower.tail = FALSE)
+```
+The probability that the mean of 45 lengths of copper wire will be 1 or more flaws is 0.0008175021.
+
+> f. Explain why the value you found in e. was so much smaller than the value found in b.
+
+The value calculated in part b was only for one length of wire. Since we are now taking a sample of 45 wires, each sample being independent, the individual probability will be combined with many other instances. We are also taking the mean of the sample, so the probabilities of getting other realizations will affect the probability of getting 1 or more as the mean of the sample. 
+
+> g. Consider the total number of flaws in the 45 1 in. lengths of copper wire. Describe the distribution (shape, mean, and standard deviation) of $Sum=X_1+X_2+...+X_{45}$ according to theory. Make sure to name any theorems you are using. 
+
+Similar to part d, the Central Limit Theorem will make the distribution shape approximately normal. The mean of sums will be the population mean multiplied by the sample size, which will be $\mu=0.66*45=29.7$. The standard deviation will be the population standard deviation multiplied by the square root of the sample size, so $\sigma = \sqrt{0.5244}*\sqrt{45} = 4.857777$.
+
+> h. Find an upper bound b such that the **total number of flaws in 45 1 in. lengths of copper wire** will be less than b with probability 0.95.
+
+```{r}
+qnorm(0.95, mean=29.7, sd=4.857777, lower.tail = TRUE)
+```
+$b=37.69033$. 95% of the sum of flaws in 45 lengths of copper wire will be less than 37.69033.

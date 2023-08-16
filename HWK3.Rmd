@@ -1,0 +1,257 @@
+---
+title: "Stat 324 Homework #3 Due Wednesday February 15th 9am"
+author: "Zinnia Nie"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Submit your homework to Canvas by the due date and time. Email your lecturer if you have extenuating circumstances and need to request an extension. 
+
+*If an exercise asks you to use R, include a copy of the code and output. Please edit your code and output to be only the relevant portions.
+
+*If a problem does not specify how to compute the answer, you many use any appropriate method. I may ask you to use R or use manually calculations on your exams, so practice accordingly.
+
+*You must include an explanation and/or intermediate calculations for an exercise to be complete.
+
+*Be sure to submit the HWK3 Auto grade Quiz which will give you ~20 of your 40 accuracy points.
+
+*50 points total: 40 points accuracy, and 10 points completion
+
+\vspace{1cm}
+
+**Exercise 1:** A chemical supply company ships a certain solvent in 10-gallon drums. Let X represent the number of drums ordered by a randomly chosen customer. Assume X has the following probability mass function (pmf). The mean and variance of X is : $\mu_X=2.2$ and $\sigma^2_X=1.76=1.32665^2$:
+
+
+| X | P(X=x) |
+|:-:|:-:|
+| 1 | 0.4 |
+| 2 | 0.3 |
+| 3 | 0.1 |
+| 4 | 0.1 |
+| 5 | 0.1 |
+
+
+> a. Calculate $P(X \le 2)$ and describe what it means in the context of the problem. 
+
+$P(X \le 2)=P(X=1)$ OR $P(X=2)=P(X=1)+P(X=2)=0.4+0.3=0.7$
+
+This is the probability that a randomly chosen customer ordered 2 or less drums of solvent, which is the same as the probability of that customer ordering 1 or 2 drums of solvent.
+
+> b. Let Y be the number of gallons ordered, so $Y=10X$. Find the probability mass function of Y.
+
+| y | P(Y=y) |
+|:-:|:-:|
+| 10 | 0.4 |
+| 20 | 0.3 |
+| 30 | 0.1 |
+| 40 | 0.1 |
+| 50 | 0.1 |
+
+The probabilities of a randomly chosen customer ordering a certain number of drums doesn't change, but the amount they ordered is in different units.
+
+> c. Calculate $\mu_Y$. Interpret this value.
+
+$\mu_Y=10*\mu_X=10*2.2=22$ 
+
+This is the average of the number of gallons that is ordered based on many randomly chosen customers. It is the expected value of the random variable but it is scaled by the gallons per drum.
+
+> d. Calculate $\sigma_Y$. Interpret this value.
+
+$\sigma_Y=10*\sigma_X=10*1.32665=13.2665$
+
+Similarly to mean, standard deviation can also just be scaled by the units of 10 gallons per drum. In this case, this value represents how many gallons a randomly chosen customer's purchase will vary on average from the expected value of gallons.
+
+\vspace{1cm}
+
+
+**Exercise 2** A customer receives a very large shipment of items. The customer assumes 15\% of the items in the shipment are defective. You can assume that the defectiveness of items is independent within the shipment and  use a 0.15 probability of defectiveness for each item. 
+
+Someone on the quality assurance team samples 4 items. Let X be the random variable for the number of defective items in the sample.  
+
+> a. Determine the probability distribution of X (write out the pmf) using probability theory.
+
+| x | P(X=x) |
+|:-:|:-:|
+| 0 | 0.5220 |
+| 1 | 0.3685 |
+| 2 | 0.0975 |
+| 3 | 0.0115 |
+| 4 | 0.0005 |
+
+$P(X=0)=0.85^4=0.5220$
+
+$P(X=1)=4*0.15*0.85^3=0.3685$
+
+$P(X=2)=6*0.15^2*0.85^2=0.0975$
+
+$P(X=3)=4*0.15^3*0.85=0.0115$
+
+$P(X=4)=0.15^4=0.0005$
+
+> b. Compute P(X>0). What does this value mean in the context of the scenerio?
+
+$P(X>0)=1-P(X=0)=1-0.5220=0.478$
+
+This value represents the probability of a randomly chosen sample of 4 items having at least one defect.
+
+> c. What is the expected value for X, $\mu_X$? What does that value mean in the context of the scenerio?
+
+$\mu_X=0*0.5220+1*0.3685+2*0.0975+3*0.0115+4*0.0005=0.6$
+
+This is the expected value for the random variable, which is the predicted mean of the number of defects calculated over infinite random samples of 4 items. 
+
+> d. What is the standard deviation for X, $\sigma_X$? 
+
+$\sigma_X^2=((0-0.6)^2*0.5220)+((1-0.6)^2*0.3685)+((2-0.6)^2*0.0975)+((3-0.6)^2*0.0115)+((4-0.6)^2*0.0005)=0.51$
+
+$\sigma_X=\sqrt{0.51}=0.7141428$
+
+> e. Update the following simulation to check your answers for part 2a. (You'll need to also set eval=TRUE for the code to run when you knit.) Some questions to consider: Why did I define IsDefective as I did? What values wouuld be helpful stored into the CountDefective vector? What does the histogram show? 
+
+```{r, eval=TRUE}
+IsDefective=c(rep(1,15), rep(0,85))
+manytimes=100000. #may want to start with manytimes being smaller
+CountDefective=rep(0,manytimes)
+set.seed(1)
+
+for (i in 1:manytimes) {
+  samp=sample(x=IsDefective, size=4, replace=FALSE)
+  CountDefective[i]=sum(samp>0)
+}
+
+hist(CountDefective, labels=TRUE,
+     ylim=c(0,.7*manytimes), breaks=seq(-0.5, 4.5, 1))
+
+(probX0=sum(CountDefective==0)/manytimes)
+(probX1=sum(CountDefective==1)/manytimes)
+(probX2=sum(CountDefective==2)/manytimes)
+(probX3=sum(CountDefective==3)/manytimes)
+(probX4=sum(CountDefective==4)/manytimes)
+
+```
+
+> f. Suppose the quality assurance employee is now going to look at 20 items from the shipment. They still believe it is reasonable to use a Binomial model (n=20, $\pi=0.15$) to describe the number of items in those 20 that will have a defect. 
+
+>> fi. What the the probability that exactly 5 of those 20 items have a defect? 
+
+```{r}
+dbinom(5, 20, 0.15)
+```
+$P(X=5)=0.1028452$
+
+>> fii. What the the probability that 5 or more of those 20 items have a defect?
+
+```{r}
+sum(dbinom(5:20, 20, 0.15))
+```
+$P(X\geq5)=0.1701532$
+
+>> fiii. Which histogram given below correctly shows the pdf for the binomial model described in f?
+
+```{r, echo=FALSE}
+par(mfrow=c(2,2), mar=c(4,4,2,1))
+barplot(names=0:5,dbinom(0:5, 15, prob=0.85), 
+     xlab="", ylab="Probability", main="Graph A", space=0)
+barplot(names=0:20, dbinom(0:20, 20, prob=0.85), 
+     xlab="", ylab="Probability", main="Graph B", space=0)
+barplot(names=0:20, dbinom(0:20, 20, prob=0.15), 
+     xlab="", ylab="Probability", main="Graph C", space=0)
+barplot(names=0:5, dbinom(0:5, 15, prob=0.15), 
+     xlab="", ylab="Probability", main="Graph D", space=0)
+par(mfrow=c(1,1), mar=c(5.1, 4.1, 4.1, 2.1))
+```
+
+**Graph C** is the correct representation of the model in f. First, the x-axis scale is correct, because the sample size is 20, thus we must get the probabilities for when X=0 up to X=20. Then looking at the binomial probabilities, the lower half has higher probabilities than the higher values which makes sense because the probability of having a defect is small, so having only a few defects in a sample of 20 is more likely than all of the items having a defect.
+
+\vspace{1cm}
+
+
+**Exercise 3** For each of the following questions, say whether the random variable is reasonably approximated by a binomial random variable or not, and explain your answer. Comment on the reasonableness of each of things that must be true for a variable to be a binomial random variable (ex: identify $n:$ the number of Bernoulli trials,  $\pi$ the probability of success, etc).
+
+> a. A fair die is rolled until a 1 appears, and X denotes the number of rolls.
+
+This situation cannot be approximated by a binomial random variable because there is not a fixed number of trials given. The die is just rolled until a 1 appears which could happen in an unknown number of trials. Since there is not a fixed number of trials, this cannot be approximated as a binomial random variable.
+
+> b. Twenty of the different Badger basketball players each attempt 1 free throw and X is the total number of successful attempts.
+
+This is not a binomial random variable because the probability of making the throw varies by each player. There is no way to define a single probability for getting a success so this is not a binomial random variable.
+
+> c. A die is rolled 40 times. Let X be the face that lands up.
+
+This is not a binomial random variable because the outcome cannot be defined as a success or failure. There are six different outcomes to what face lands when rolling a die, so there is no way to define a what is the event of interest which makes this not a binomial random variable.
+
+>d. In a bag of 10 batteries, I know 2 are old. Let X be the number of old batteries I choose when taking a sample of 4 to put into my calculator.
+
+This is not a binomial random variable because the trials are not independent. We can approximate independence using the 10% rule, which states that if the sample size is $\leq10\%$ of the population, then we can assume that each event is independent. The sample size of this situation is 4 but the population size is only 10. Since we are sampling without replacement of each battery, and the sample size is greater than 10% of 10, the trials are not independent, thus this is not a binomial random variable.
+
+>e. It is reported that 20\% of Madison homeowners have installed a home security system. Let X be the number of homes without home security systems installed in a random sample of 100 houses in the Madison city limits.
+
+This is a binomial random variable. First of all, success and failure are clearly defined as have installed a home security system and have not installed a home security system. The probability of the home having installed a home security system is 20% while not installed a home security system is 80% and the probabilities add up to 1. Each trial is independent because one house having installed a home security system is independent of all of the other houses. Not only that, there is more than 1000 houses in Madison, so 100 houses is much less than 10% of the population. Finally, there is a fixed number of trials at 100. 
+
+\vspace{1cm}
+
+
+**Exercise 4:** The bonding strength $S$ of a drop of plastic glue from a particular manufacturer is thought to be well approximated by a normal distribution with mean 98 lbs and standard deviation 7.5 lbs. $S~\sim N(98, 7.5^2)$. Compute the following values using a normal model assumption. 
+
+> a. What proportion of drops of plastic glue will have a bonding strength between 95 and 104 lbs according to this model?
+
+```{r}
+pnorm(95, mean=98, sd=7.5)
+pnorm(104, mean=98, sd=7.5)
+0.7881446-0.3445783
+```
+$P(95\leq X\leq104)=0.4435663$
+
+> b. A single drop of that glue had a bonding strength that is 0.5 standard deviations above the mean. What proportion of glue drops have a bonding strength that is higher ?
+
+```{r}
+pnorm(0.5, mean=0, sd=1, lower.tail=FALSE)
+98+(0.5*7.5)
+pnorm(98+(0.5*7.5), mean=98, sd=7.5, lower.tail=FALSE)
+```
+30.85375% of glue has a higher bonding strength.
+
+> c. What bonding strength did a drop of glue have that is at the 90th percentile?
+
+```{r}
+qnorm(0.9, mean=0, sd=1)
+# 1.281552 standard deviations above the mean
+98+(1.281552*7.5)
+```
+Glue at the 90th percentile has 107.6116 lbs of bonding strength.
+
+> d. What is the IQR of bonding strength for drops of glue from this manufacturer?
+
+```{r}
+# IQR = 75th percentile - 25th percentile
+qnorm(0.75, mean=0, sd=1)
+98+(0.6744898*7.5)
+
+qnorm(0.25, mean=0, sd=1)
+98+(-0.6744898*7.5)
+
+103.0587-92.94133
+```
+IQR=10.11737
+
+> e. Drops of a similar plastic glue from another manufacturer (manufacturer B) is claimed to have bonding strength well approximated by a normal distribution with mean 43 kg and standard deviation of 3.5 kg $W_{B.kg}~\sim N(43, 3.5^2)$. What is the probability that a drop of manufacturer B's glue will have strength above the 90th percentile strength of manufacturer A's glue? You can use the conversion: 1 kg $\approx$ 2.20462 lbs. 
+
+```{r}
+43*2.20462
+3.5*2.20462
+
+pnorm(107.6116, mean=94.79866, sd=7.71617, lower.tail=FALSE)
+```
+
+$\mu_X=94.79866$ in pounds. $\sigma_X=7.71617$ in pounds. 90th percentile strength in manufacturer A is 107.6116 lbs.
+
+There is a 0.04840383 chance that manufacturer B's glue will have a higher bonding strength.
+
+\vspace{1cm}
+

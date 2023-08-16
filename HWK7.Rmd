@@ -1,0 +1,222 @@
+---
+title: "Stat 324 Homework 7"
+author: "Zinnia Nie"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Submit your homework to Canvas by the due date and time. Email your instructor if you have extenuating circumstances and need to request an extension. 
+
+*If an exercise asks you to use R, include a copy of the code and output. Please edit your code and output to be only the relevant portions.
+
+*If a problem does not specify how to compute the answer, you many use any appropriate method. I may ask you to use R or use manually calculations on your exams, so practice accordingly.
+
+*You must include an explanation and/or intermediate calculations for an exercise to be complete.
+
+*Be sure to submit the HWK 7 Auto grade Quiz which will give you ~20 of your 40 accuracy points.
+
+*50 points total: 40 points accuracy, and 10 points completion
+
+
+**Exercise 1.** According to the IRS (Internal Revenue Service), the amount of time to fill out an 1040 tax form is about 150 minutes. A researcher believes it actually takes people longer to complete the form and collects the time (in minutes) in takes 25 people to complete the form. The times are listed below in increasing order. 
+$$16, 24, 25, 48, 68, 91, 112, 121, 145 ,150, 172, 181, 194, 201, 205, 221, 242, 250, 252, 315, 365, 382, 422, 511, 614$$
+
+> a. Construct a histogram of the sample data. Explain why the median time to complete the form may be prefered over the mean for a measure of center for all individuals' times to complete the form.
+
+```{r}
+data<-c(16, 24, 25, 48, 68, 91, 112, 121, 145 ,150, 172, 181, 194, 201, 205, 221, 242, 250, 252, 315, 365, 382, 422, 511, 614)
+
+hist(data, main="Histogram of tax filing times", xlab="time (mins)")
+```
+
+Median would be a better choice for a measure of center because the data appears to be right skewed. There is a concentration of data frequency at the lower times compared to the higher times. Thus, the mean of the data would correspondingly be affected by the large volume of shorter times, and be lower than the actual center. The median, on the other hand, is unaffected by the shape of the distribution and thus would reflect the center more accurately.
+
+> b. Let M be the population median time to complete the form. Use the sign test to test: $H_o: M=150$ vs $H_A: M > 150$ at $\alpha=0.05$. Compute the **observed test statistic** and **p-value**. Draw a conclusion in the context of the problem. 
+
+```{r}
+B = length(data[data>150]) # test statistic of num greater than null hypothesis
+print(B)
+
+sum(dbinom(15:24, 24, 0.5)) # probability there are more than 15 values greater than null
+
+binom.test(15, n=24, p=0.5, alternative="greater") # 24 values not equal to the null of 150
+```
+The p value of this test is $0.1537$. This p value is greater than the significance level of $\alpha=0.05$. This means that we fail to reject the null hypothesis. For this test, it means that there is not enough evidence to suggest that the amount of time needed to fill out the form is greater than 150 minutes. 
+
+> c. Explain how, if at all, your observed test statistic and p value for the sign test of your hypotheses would change if the 16 minute form completion time had actually been 5 minutes. 
+
+The test statistic and p value would not change at all. For a sign test, we are taking the number of sample values that are greater than the null hypothesis value for the test statistic. Since in the original data set, 16 is already less than the null hypothesis value of 150, and the new replacement value of 5 is also less than 150, the number of values greater than 150 will not change. Since the test statistic, size of dataset, and significance level doesn't change, the calculated p value also will not. 
+
+\vspace{1cm}
+
+
+**Exercise 2**. An experiment looked at the effectiveness of mushroom compost to counteract petroleum contaminants in soil. The same contaminated soil was divided up into 600 small containers, 200 of each with differing levels of mushroom compost by weight. One seed (all of the same type) was planted into each of the small containers. The number of seeds that germinated are reported by mushroom compost percentage in the table below. The six hundred containers were housed in the same greenhouse.  
+
+|Mushroom Compost percentage | 3% |  4%  | 5% | 
+|----------------------------|----|------|----|
+|Number of seeds that do germinate: | 128 | 136 | 148 | 
+|Number of seeds that do not germinate: | 72 | 64 | 52 | 
+|Total | 200 | 200 | 200 |
+
+> a. Discuss how the sampling strategy impacts the population to which the inference should be made. That is, based on what we know about the sampling do we have a simple random sample of iid observations from all mushroom compost germination values? To what population could we more confidently make an inference?
+
+This is likely not a simple random sample of all mushroom compost germination. All of the soil used has petroleum contaminants, so the population sampled doesn't equally represent mushroom compost germination in uncontaminated soil. Also all of the soil was taken from one area and the containers were housed in the same greenhouse, so all potential environments are not equally represented. Finally, all of the seeds are for the same plant, therefore we do not represent all possible plants that could be germinated with mushroom compost.
+
+Instead, the population for inference should instead be mushroom compost with petroleum contaminated soil germinated for the specific plant in the experiment in a greenhouse. 
+
+> b. A seller of Mushroom Compost advertises that "Adding mushroom compost to contaminated soil raises germination rates above 60%!". Use a one-sample large sample Z test for $\pi_{3G}$: the proportion of the seeds that germinate in 3% mushroom compost to see if there is significant evidence at the $\alpha=0.05$ level for the seller's claim at that compost level (as it applies to the population you identified in (a).
+
+>> *Hypotheses:*
+
+$H_0:\pi_{3G} \le 0.60$
+
+$H_a:\pi_{3G} > 0.60$
+
+>> *Assumptions Check*: 
+
+>>> Do we have SRS of iid observations?
+  
+  Likely not SRS because the group the sample was drawn from does not accurately reflect all aspects of the population, like the fact that the sample was in a greenhouse and also all of the same plant. Also, the amount of mushroom compost added is fixed at 3%. 
+  
+  However, the observations are independent because they were planted in individual containers. This means that each seed is unaffected by the other seeds in the population/sample. 
+
+>>> Do we have sample size large enough for $\hat{P_W} \approx N$?
+  
+  $200(0.6) \ge 10 = 120 \ge 10$
+  
+  $200(1-0.6) \ge 10 = 200(0.4) \ge 10 = 80 \ge 10$
+  
+  Sample size is large enough for the distribution to be approximately normal.
+
+>> *Calculations*: 
+
+>>> Observed Test Statistic: 
+
+  $\hat{p}=\frac{128}{200}=0.64$
+  
+  $z=\frac{\hat{p}-\pi_0}{\sqrt{\frac{\pi_0(1-\pi_0)}{n}}} = \frac{0.64-0.60}{\sqrt{\frac{0.60(1-0.60)}{200}}}=\frac{0.04}{0.03464102}=1.1547$
+
+>>> P Value
+
+```{r}
+pnorm(1.1547, 0, 1, lower.tail = FALSE)
+```
+
+
+>> *Conclusion in Context*
+
+The p value of the test is $0.1241$ which is greater than the significance level of $\alpha=0.05$. Therefore we cannot reject the null and there is nt enough evidence to suggest that the germination rate of 3% mushroom compost in contaminated soil is greater than 60%.
+
+> OPTIONAL REVIEW (Not graded): Compute a [two-sided] 95% CI for $\pi_{3G}$: the proportion of the seeds that germinate in 3% mushroom compost. Compare the processes and conclusions to what you did in 1b. 
+
+$\hat{p}=\frac{128}{200}=0.64$
+
+```{r}
+qnorm(.025, lower.tail=FALSE) # z critical value = 1.959964
+```
+
+Margin of Error: $1.959964*\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}=1.959964*\sqrt{\frac{0.64(1-0.64)}{200}}=1.959964*\sqrt{\frac{0.2304}{200}}=1.959964*0.03394113=0.06652339$
+
+Confidence interval: $0.64-0.06652339 \le \pi_{3G} \le 0.64+0.06652339 = 0.5734766 \le \pi_{3G} \le 0.7065234$
+
+Conclusion: There is a 95% chance that the proportion of germinated sees in 3% mushroom compost ($\pi_3$) is in between $0.5734766$ and $0.7065234$.
+
+There is one similar step in the calculation of confidence interval and the test state for hypothesis testing, which is the denominator of the calculation for the test statistic and part of the calculation of margin of error, $\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}$. The only difference is that the test statistic uses $\pi_0$ while margin of error uses $\hat{p}$. This is the formula for standard error of sample proportion, which is used in both calculations.
+
+Another similarity is that we need a critical value, in this case it is a z value. The difference is that the critical value is calculated by hand in hypothesis testing, while in finding a confidence interval, we get it from the confidence level. 
+
+For the conclusions, confidence intervals use sample data to estimate a population parameter while hypothesis testing use sample data to test a hypothesis. Confidence intervals can be used to double check hypothesis test conclusions. If the hypothesized value falls within the confidence interval, that means that the data is not extreme enough, so we fail to reject the null hypothesis. The hypothesized value for the hypothesis test in part b is $0.6$, which lies within the confidence interval of $0.5734766$ to $0.7065234$. We also fail to reject the null hypothesis, which matches the conclusion from the confidence interval.
+
+> c. Perform a hypothesis test at the 5\% level of significance to determine if there is evidence of a *difference in the proportion of 3% and 5% mushroom compost seeds* that germinate under conditions similar to the experiment. (Be sure to state your hypotheses, assumptions, and show your test statistic and p value computations by hand.)
+
+>> *Hypotheses*:
+
+$H_0:\pi_{3G} = \pi_{5G}$
+
+$H_a:\pi_{3G} \neq \pi_{5G}$
+
+aka
+
+$H_0:\pi_{3G} - \pi_{5G} = 0$
+
+$H_a:\pi_{3G} - \pi_{5G} \neq 0$
+
+>> *Assumptions*: 
+
+>>> (1) IID Samples Independently Sampled? 
+  
+  The two groups of 3% and 5% compost are two independent groups in the experiment. The only difference between the conditions of the two groups is the percentage of mushroom compost given. Each seed in each group is also independent of the others because it was germinated in its own container, so the other seeds did not affect its growth.
+
+>>> (2) Normality?
+  
+  Both have a sample size of 200. 
+  
+  For 3%: $\hat{p_{3G}}=0.64$. $200*0.64=128 \ge 10$ and $200*(1-0.64)=72 \ge 10$
+  
+  For 5%: $\hat{p_{5G}}=0.74$. $200*0.74=148 \ge 10$ and $200*(1-0.74)=52 \ge 10$
+  
+  All conditions fulfilled to have an approximately normal sampling distribution.
+
+>> *Calculations*:
+
+>>> Test Statistic
+
+  $\hat{P_{pooled}}=\frac{128+148}{200+200}=\frac{276}{400}=0.69$
+  
+  $Z=\frac{\hat{p_{3G}}-\hat{p_{5G}}-0}{\sqrt{\hat{P_{pooled}}(1-\hat{P_{pooled}})[\frac{1}{n_{3G}}+\frac{1}{n_{5G}}}]}=\frac{-0.10}{0.04624932}=-2.162194$
+
+>>> P value
+
+```{r}
+2*pnorm(q=-2.162194)
+```
+
+>> *Conclusion in Context*
+
+The p value $0.0306$ which is less than the significance level of $\alpha=0.05$. This means that we can reject the null hypothesis, so there is enough evidence to suggest that there is a difference in the proportion of 3% and 5% mushroom compost seeds that germinate under conditions similar to the experiment.
+
+> d. Create a 95\% confidence interval for $\pi_3-\pi_4$, the difference in proportion of seed germination with 3% and 4% mushroom compost.(Be sure to show your computations.) Interpret the confidence interval in the context of the question. 
+
+>> *Point estimate for $\pi_3-\pi_4$:*
+
+  For 3%: $\hat{p_{3G}}=0.64$. 
+  
+  For 4%: $\hat{p_{4G}}=0.68$. 
+  
+  $E(\hat{p_{3G}}-\hat{p_{4G}})=0.64-0.68=-0.04$
+
+>> *Standard Error for Estimator:* 
+
+  $SD(\hat{p_{3G}}-\hat{p_{4G}})=\sqrt{\frac{0.64(1-0.64)}{200}+\frac{0.68(1-0.68)}{200}}=0.04732864$
+
+>> *Critical Value*: 
+
+```{r}
+(z.crit=qnorm(.025, lower.tail=FALSE))  #critical Value for 95% confidence
+```
+  
+>> *Margin of Error*
+
+```{r}
+z.crit*0.04732864 #z value * SE
+```
+
+>> *Final Form of Confidence Interval*
+
+Confidence interval for estimating $\pi_3-\pi_4$: $-0.04-0.09276243 \le \pi_3-\pi_4 \le -0.04+0.09276243 = -0.1327624 \le \pi_3-\pi_4 \le 0.05276243$
+
+>> *Interpretation of CI:*
+
+There is a 95% chance that the difference between the proportion of germinated sees in 3% mushroom compost ($\pi_3$) and 4% mushroom compost ($\pi_4$) is in between $-0.133$ and $0.053$.
+
+> e. Suppose the scientist consulted you before setting up the experiment. She had planned on sprinkling all 200 seeds for a single compost level in a 1 foot X 1 foot patch of soil. Why does this concern you? 
+
+It will be hard to count the number of seeds that germinate. Also compost might not be spread evenly so the percentage of compost might not be accurate for each seed. Finally, each seed would not be independent of the others in the sample because they are in the same area. Each seed can affect the growth of the other seeds. In general, this method of planting introduces too many uncertainties into the experiment. 
+
+

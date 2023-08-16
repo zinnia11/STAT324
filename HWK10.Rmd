@@ -1,0 +1,296 @@
+---
+title: "Homework 10 Due April 26 9 am  \nComparisons of two or more group centers and Bivariate Numeric Data Part 1"
+author: "Zinnia Nie"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Submit your homework to Canvas by the due date and time. Email your instructor if you have extenuating circumstances and need to request an extension. 
+
+*If an exercise asks you to use R, include a copy of the code and output. Please edit your code and output to be only the relevant portions.
+
+*If a problem does not specify how to compute the answer, you many use any appropriate method. I may ask you to use R or use manually calculations on your exams, so practice accordingly.
+
+*You must include an explanation and/or intermediate calculations for an exercise to be complete.
+
+*Be sure to submit the HWK 10 Auto grade Quiz which will give you ~20 of your 40 accuracy points.
+
+*50 points total: 40 points accuracy, and 10 points completion
+
+## Part 1: Hypothesis Testing and CI for $\mu_i$ from two or more independent samples
+
+**Exercise 1** A study was conducted to explore the effects of ethanol on sleep time. Fifteen rats were randomized to one of three treatments. Treatment 1 got only water (control). Treatment 2 got 1g of ethanol per kg of body weight, and treatment 3 got 2g/kg. The amount of REM sleep in a 24hr period was recorded, in minutes. Data are given below. 
+
+The researchers plan to perform a test to help decide between a model that says a mean amount of REM sleep for all three treatment is equal $H_o: \mu_1=\mu_2=\mu_3$ and a model that allows for at least one group mean to be different $H_A:$ at least one $\mu_i$ is different. 
+
+\begin{center}
+Treatment 1: 63, 56, 69, 59, 67 \newline
+Treatment 2: 45, 60, 52, 56 \newline
+Treatment 3: 31, 40, 44, 33, 37, 28 \newline
+\end{center}
+
+> a. Make a preliminary graph of the data that enables you to compare the centers and spreads of the three samples. 
+
+```{r}
+treat1 = c(63, 56, 69, 59, 67)
+treat2 = c(45, 60, 52, 56)
+treat3 = c(31, 40, 44, 33, 37, 28)
+```
+
+```{r}
+boxplot(treat1, treat2, treat3, horizontal = TRUE, names = c("treat 1", "treat 2", "treat 3"))
+```
+
+>> a.1 Does this graph suggest the three samples come from populations with the same mean value ($H_o:$ is true?) or that an $H_A$ model is better? What about the graph makes you say that?
+
+The boxplots do suggest that the values have a different center. There is little overlap between the spread of the boxplots, as only treatment 1 and treatment 2 have some overlap between the higher values of treatment 2 and the lower values of treatment 1. Also, the medians, which is another measure of center, of treatment 2 and treatment 3 are nowhere near each other. In general, it seems like the means of the samples, based on their spreads and centers in the boxplots are different, so we would reject the null hypothesis with this evidence. 
+
+>> a.2 What does this preliminary graph tell you about an equal variance assumption in the three populations?
+
+It is possible we could assume equal variance. Treatment 2 and 3 defintely look like they have a simliar range and spread, so their variance would be similar. The spread of treatment 1 appears to be a bit smaller than the other two treatments, but also looks to be close enough to be within a factor of 2, so we can use the equal variance assumption. 
+
+> b. Compute the following summary statistics that will be useful in  an ANOVA analysis.  Keep values to at least 3 decimal places.
+
+| Sample | Treatment 1 | Treatment 2 | Treatment 3 | Overall |
+|-|-|-|-|-| 
+| mean |  $\bar{y_{1.}}=62.8$ |  $\bar{y_{2.}}=53.25$ |   $\bar{y_{3.}}=35.5$  |  $\bar{y_{..}}=49.33333$ | 
+| sd |  $s_1=5.403702$ |  $s_2=6.396614$ |   $s_3=5.958188$ |  $s=13.45185$| 
+| n |  $n_1=5$ |   $n_2=4$ |  $n_3=6$ |  $N=15$ | 
+
+```{r}
+mean(treat1)
+mean(treat2)
+mean(treat3)
+mean(c(treat1, treat2, treat3))
+```
+
+```{r}
+sd(treat1)
+sd(treat2)
+sd(treat3)
+sd(c(treat1, treat2, treat3))
+```
+
+> c. Create an ANOVA table for the data using the relevant function in R.
+
+| Source | DF | SS | MS | F | p-value |
+| - | - | - | - | - | - |
+| Treatment | 2 | 2116 | 1058.1 | 30.45 | 1.99e-05 |
+| Error | 12 | 417 | 34.8 |
+| Total | 14 | 2533 | - |
+
+```{r}
+samples = c(treat1, treat2, treat3)
+groups = c(1,1,1,1,1, 2,2,2,2, 3,3,3,3,3,3)
+data = data.frame(y = samples, group = factor(groups))
+#aov (Response ~ Predictor)
+aov = aov(y~group, data=data)
+summary(aov) #ANOVA table
+```
+
+> d. Create a residual plot and qqplot of your model's residuals. Use the graphs and the summary values above to explain why the assumptions for an ANOVA analysis are well met for this data.
+
+```{r}
+plot(aov)
+```
+
+In the residual plot, the residual values are spread very evenly around the zero line. Also in the qqplot, the residuals are also all located evenly around the normal line, and, while there is a larger difference between the values and the line at the tails of the data, in general the data is close to the normal line. This means that the normality assumption for ANOVA is likely met by the samples. 
+
+For the other assumptions for an ANOVA test, from the boxplots constructed above, the equal variance assumption is likely met. Then for independence between and within groups, we can only rely on the experimental design. Thus we might need to clarify about the experimental design with the researchers.
+
+> e. Based on the ANOVA table, make a conclusion in the context of the problem. (Write out your hypotheses, identify your test statistic, and p value here.)
+
+*Hypotheses:* 
+
+$H_0:$ There is no difference between the means of all of the samples
+
+$H_a:$ There is a difference between at least 2 of the means of the samples
+
+*Observed Test Statistic and p-value:* 
+
+F test statistic: 30.45
+
+p value: 1.99e-05
+
+*Conclusion in context:*
+
+The p value is very small and is smaller than the typical significance levels of 0.10, 0.05, or 0.01. Therefore, we reject the null hypothesis and there are at least 2 population means of the treatments where there is a difference.
+
+> f. Use R to obtain the relevant multiplier and then create $95\%$ CIs for all pairwise comparisons of means using the Tukey method. Do this by hand and show your work. Use a built-in R function to check your answers. 
+
+```{r}
+qtukey(p=0.95, nmeans=3, df=12)/sqrt(2)
+
+# treat1 vs treat2
+53.25-62.8+2.667864*sqrt((34.8*(1/5+1/4) ))
+53.25-62.8-2.667864*sqrt((34.8*(1/5+1/4) ))
+# treat1 vs treat3
+35.5-62.8+2.667864*sqrt((34.8*(1/5+1/6) ))
+35.5-62.8-2.667864*sqrt((34.8*(1/5+1/6) ))
+# treat2 vs treat3
+35.5-53.25+2.667864*sqrt((34.8*(1/4+1/6) ))
+35.5-53.25-2.667864*sqrt((34.8*(1/4+1/6) ))
+```
+
+treat2 - treat1: lower = -20.10746, upper = 1.007463
+
+treat3 - treat1: lower = -36.82991, upper = -17.77009
+
+treat3 - treat2: lower = -27.90892, upper = -7.591077
+
+```{r}
+TukeyHSD(aov)
+```
+
+> g. Summarize your results regarding which groups are found significantly different using letter codes. What do you conclude?
+
+| Treatment | Sample Mean | Letter (according to Tukey's)|
+|-|-|-|
+| 3 | 35.5 | B |
+| 2 | 53.25 | A |
+| 1 | 62.8 | A |
+
+0 is included in the confidence interval calculated between treatment 1 and 2, so we believe that there may not be a difference between the population means of those two treatments, aka the difference could be 0. Therefore, they go into the same group. On the other hand, 0 is not included in the interval calculated between treatments 2 and 3 and 1 and 3, so treatment 3 is in a different group from both treatment 1 and 2. 
+
+> h. Now analyze the same data using an overall Kruskal-Wallis - report the test statistic and p value. Followed up with Wilcoxon Rank Sum tests with a Bonferroni adjustment. How does your conclusion change, if at all? 
+
+```{r}
+kruskal.test(y~group, data=data)
+```
+
+Kruskal-Wallis test stat: 11.411
+
+p values: 0.003328
+
+Since the p value is quite small, the conclusion does not change from the ANOVA test. We reject the null hypothesis and at least 1 population is shifted off from the others.
+
+```{r}
+wilcox.test(treat2, treat1, exact = FALSE)
+wilcox.test(treat3, treat1, exact = FALSE)
+wilcox.test(treat3, treat2, exact = FALSE)
+0.0851*6
+0.008113*6
+0.01421*6
+```
+
+|Treatment | Sample Mean | Letter (according to Wilcoxon RS w/ Bonferroni's)|
+|-|-|-|
+|3 | 35.5 | B |
+|2 | 53.25 | AB |
+|1 | 62.8 | A |
+
+Once again the Wilcoxon test for treatment 1 and 2 has a high Bonferroni adjusted p value, 0.5106, that is greater than the significance level of 0.05, so we would put them in the same group, as there is not sufficient evidence to show that they have a different population mean. Treatment 2 and 3 comparison also has a Bonferroni adjusted p value of 0.08526 that is greater than the significance level, so treatment 2 and 3 are also in the same group. 
+
+On the other hand, treatment 1 and 3 have a adjusted p value that is smaller than 0.05 of 0.048678. Treatment 1 and 3 must be in different groups. So 1 and 2 are in the same group, A, 2 and 3 are in the same group, B, and 1 and 3 are in different groups. Treatment 2 is in both groups A and B because group placement is not transitive. 
+
+> i. What test and conclusions would you recommend the scientist use based on your findings and your evaluation of the assumptions of the tests?
+
+Based on the residual graph and qqplot, I think that we can assume normality and use the ANOVA test. Also, the Bonferroni adjustment is not generally used because it is usually too conservative when talking about significant results, but the Tukey method is less conservative and thus more used, so we should use the ANOVA test and Tukey confidence intervals for a more powerful conclusion.
+
+\newpage
+
+
+**Exercise 2** Suppose we are interested in exploring the relationship between city air particulate and rates of childhood asthma. We sample 15 cities for particulate measured in parts-per-million (ppm) of large particulate matter and for the rate of childhood asthma measured in percents. The data are as follows (and are also given in asthma.csv):
+
+|variable|||||||||||||||||
+|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
+|ppm(x): ||11.6|15.9|15.7|7.9|6.3|13.7|13.1|10.8|6.0|7.6|14.8|7.4|16.2|  13.1|11.2| 
+|asthma\%(y): ||14.5|16.6|16.5|12.6|12.0|15.8|15.1|14.2|12.2|13.1|16.0|12.9|  16.4|15.4|14.4|
+  
+
+| variable: |  size |   mean |  variance | 
+| - |- | - | -|
+| particulate |  15 |  11.42 |  13.05029 | 
+| asthma |  15 |  14.51333 |  2.635524 | 
+
+
+> a. Plot the data as you see fit and summarize the pattern's shape, direction, and strength in the context of the problem.
+
+```{r}
+asthma = read.csv("asthma.csv")
+plot(x=asthma$particulate, y=asthma$asthma, xlab = "Particulate Levels (ppm)", ylab = "Rate of childhood asthma (%)", main = "Particulate levels vs asthma rates")
+```
+
+The pattern in the graph appears to be a strong, positive, linear pattern. First the data follows a line in the graph with even slope. The rate of asthma increases as particulate levels increase, so the trend is positive. Finally, the data pattern is strong, as the data falls in a very obvious line. 
+
+> b. Calculate the correlation coefficient and explain how the value corresponds to what you observed in the graph in part (a)
+
+```{r}
+cor(asthma$particulate, asthma$asthma)
+```
+
+The correlation coefficient is 0.9931873 which is greater than 0.8, so the correlation between the two values is strong. That is the same conclusion that is shown in the graph froom part (a), as the data points fall in a very clear linear pattern.
+
+> c. Build a linear regression model with least squares estimators for slope and y intercept for the data 
+
+>> (c.1) First by hand using the correlation computed in (b) and summary statistics given above. 
+
+$\hat{\beta_1}=\frac{rs_y}{s_x}=\frac{0.9931873*1.62343}{3.612519}=\frac{1.61237}{3.612519}=0.4463284$
+
+$\hat{\beta_0}=\bar{y}-\hat{\beta_1}\bar{x}=14.51333-(0.4463284*11.42)=9.41626$
+
+Least Squares Model: $y=\hat{\beta_0}+\hat{\beta_1}x = 9.41626 + 0.4463284x$
+
+>> (c.2) then check your computations using lm in R. 
+
+```{r}
+asthma.lm <- lm(asthma~particulate, data=asthma)
+summary(asthma.lm)
+```
+Intercept $(\hat{\beta_0})$ and slope $(\hat{\beta_1})$ are the same, 9.41626 and 0.44633.
+
+>> (c.3) Interpret the estimated intercept and slope in the context of the question. 
+
+*Intercept*
+
+When the large particulate levels of the environment are equal to 0, the rate of childhood asthma is 9.41626%
+
+*Slope*
+
+For every 1 ppm increase in the large particulate levels in the city, the rate of childhood asthma will increase by 0.44633%.
+
+> d. Construct a residual plot of fitted y values on the x axis and residuals on the y. Also, create a qqnorm plot of the residuals. Assess whether the correct model, constant variance, and normality of errors assumptions are reasonably met.
+
+```{r}
+x_vals = asthma$particulate
+y_pred = 9.41626+0.44633*x_vals
+
+residuals = asthma$asthma-y_pred
+
+plot(x=y_pred, y=residuals)
+abline(h=0)
+hist(residuals)
+qqnorm(residuals)
+qqline(residuals)
+```
+
+Correct Model: From the residual graph, the residuals are evenly spread around the 0 line, and there is not visible pattern in the graphed residuals. Also, from the first graph constructed in part (a), the data clearly follows a linear trend, so a linear model would be the best.
+
+Constant Variance: The residual graph has a even spread of points around the 0 line. There does not appear to be a favoring of either side in the residual graph. 
+
+Normality of errors: The qqplot of the residuals shows that the residuals are evenly spread around the normal qqline. The histogram also shows a normal bell curve shape. 
+
+> e. Identify what (particulate, asthma) point results in the residual with the largest magnitude. Is that point above or below the fitted regression line? Show how the residual is calculated. (Makes sure that you can also identify that point on the residual plot.)
+
+```{r}
+which.max(abs(residuals)) # index of the max value
+residuals[4]
+asthma$particulate[4]
+asthma$asthma[4]
+
+9.41626 + 0.4463284*7.9
+12.6-12.94225
+```
+
+The point with the largest residual is (7.9, 12.6) with a residual of -0.34225. Since the residual is negative, the actual value is less than the predicted value. 
+
+To calculate, first find the predicted value using the particulate data and the linear model. $\hat{y}=9.41626 + 0.4463284(x) = 9.41626 + 0.4463284(7.9) = 12.94225$. Then the residual is $(y-\hat{y})$, which is (actual y - expected y). For this point, it is $(12.6-12.94225 = -0.34225)$.
+
+On the residual plot, this is the point that is the farthest from the zero line. 
+
